@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AIカメラ ＆ チャット</title>
+    <title>AIなんでも鑑定士</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@700;900&display=swap" rel="stylesheet">
     <style>
@@ -61,7 +61,7 @@
             </div>
 
             <button id="runBtn" disabled class="bg-blue-600 disabled:bg-slate-700 text-white py-4 rounded-xl font-bold shadow-lg active:scale-95 transition mt-1">
-                写真でひとこと
+                鑑定！！
             </button>
         </div>
     </main>
@@ -150,7 +150,7 @@
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: "あなたはIPPONグランプリの絶対王者です。この写真でお題が出されたと思って、誰も思いつかない角度からシュールにひとこと例えるか、セリフでボケてください。前置きは不要、1行で15文字以内。" }, { inlineData: { mimeType: "image/jpeg", data: base64Img } }] }]
+                        contents: [{ parts: [{ text: "あなたは、なんでも鑑定士です。写真のものを鑑定し、値段と理由を書いてください。前置きは不要、1行で15文字以内。" }, { inlineData: { mimeType: "image/jpeg", data: base64Img } }] }]
                     })
                 });
                 const d = await res.json();
