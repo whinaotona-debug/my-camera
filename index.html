@@ -91,7 +91,7 @@
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${API_KEY}`);
                 const data = await res.json();
                 const models = data.models || [];
-                const target = models.find(m => m.name.includes('gemini-1.5-flash')) || models[0];
+                const target = models.find(m => m.name.includes('gemini-3.1-flash')) || models[0];
                 modelPath = `https://generativelanguage.googleapis.com/v1beta/${target.name}:generateContent?key=${API_KEY}`;
             } catch (e) {
                 console.error("モデル取得失敗");
@@ -150,7 +150,7 @@
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: "写真で一言、前置きは不要、写真を使った『秀逸な例え』か『爆笑のセリフ』のどちらかで、1行で15文字以内。" }, { inlineData: { mimeType: "image/jpeg", data: base64Img } }] }]
+                        contents: [{ parts: [{ text: "あなたはIPPONグランプリの絶対王者です。この写真でお題が出されたと思って、誰も思いつかない角度からシュールにひとこと例えるか、セリフでボケてください。前置きは不要、1行で15文字以内。" }, { inlineData: { mimeType: "image/jpeg", data: base64Img } }] }]
                     })
                 });
                 const d = await res.json();
