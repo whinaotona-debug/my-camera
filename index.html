@@ -61,7 +61,7 @@
             </div>
 
             <button id="runBtn" disabled class="bg-blue-600 disabled:bg-slate-700 text-white py-4 rounded-xl font-bold shadow-lg active:scale-95 transition mt-1">
-                ツッコミを入れる！
+                写真でひとこと
             </button>
         </div>
     </main>
@@ -150,7 +150,7 @@
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: "写真で一言、1行で入れて。15文字以内。" }, { inlineData: { mimeType: "image/jpeg", data: base64Img } }] }]
+                        contents: [{ parts: [{ text: "写真で一言、写真を使った『秀逸な例え』か『爆笑のセリフ』のどちらかで、1行で15文字以内。" }, { inlineData: { mimeType: "image/jpeg", data: base64Img } }] }]
                     })
                 });
                 const d = await res.json();
