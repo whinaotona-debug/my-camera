@@ -91,7 +91,7 @@
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${API_KEY}`);
                 const data = await res.json();
                 const models = data.models || [];
-                const target = models.find(m => m.name.includes('gemini-3.1-flash')) || models[0];
+                const target = models.find(m => m.name.includes('gemini-3.5-flash')) || models[0];
                 modelPath = `https://generativelanguage.googleapis.com/v1beta/${target.name}:generateContent?key=${API_KEY}`;
             } catch (e) {
                 console.error("モデル取得失敗");
