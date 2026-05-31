@@ -150,7 +150,7 @@
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: "この写真に、鋭いツッコミを1行で入れて。15文字以内。" }, { inlineData: { mimeType: "image/jpeg", data: base64Img } }] }]
+                        contents: [{ parts: [{ text: "写真で一言、1行で入れて。15文字以内。" }, { inlineData: { mimeType: "image/jpeg", data: base64Img } }] }]
                     })
                 });
                 const d = await res.json();
