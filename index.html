@@ -4,82 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>モノモン・バトル</title>
-    <!-- 手書き風フォントの読み込み -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Yomogi&display=swap" rel="stylesheet">
-
     <style>
-        /* --- 手書き風デザイン --- */
-        :root {
-            --ink: #2c2c2c;
-            --paper: #f4f4f0;
-            --accent: #d32f2f;
-        }
-
-        body {
-            font-family: 'Yomogi', cursive;
-            background-color: var(--paper);
-            color: var(--ink);
-            margin: 0;
-            padding: 20px;
-            background-image: 
-                linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px),
-                linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px);
-            background-size: 20px 20px;
-        }
-
-        h1, h2, h3 {
-            text-align: center;
-            border-bottom: 2px solid var(--ink);
-            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
-            padding-bottom: 5px;
-            margin-bottom: 20px;
-        }
-
-        .box {
-            border: 2px solid var(--ink);
-            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
-            padding: 15px;
-            margin-bottom: 20px;
-            background: #fff;
-            box-shadow: 3px 3px 0px rgba(0,0,0,0.1);
-        }
-
-        button {
-            font-family: 'Yomogi', cursive;
-            font-size: 1.1rem;
-            color: var(--ink);
-            background: transparent;
-            border: 2px solid var(--ink);
-            border-radius: 15px 225px 15px 255px/255px 15px 225px 15px;
-            padding: 10px 20px;
-            margin: 5px;
-            cursor: pointer;
-            transition: 0.2s;
-            font-weight: bold;
-        }
-
-        button:active {
-            background: var(--ink);
-            color: var(--paper);
-        }
-
-        input {
-            font-family: 'Yomogi', cursive;
-            font-size: 1.2rem;
-            border: none;
-            border-bottom: 2px dashed var(--ink);
-            background: transparent;
-            text-align: center;
-            width: 80%;
-            outline: none;
-        }
-
+        :root { --ink: #2c2c2c; --paper: #f4f4f0; }
+        body { font-family: 'Yomogi', cursive; background-color: var(--paper); color: var(--ink); margin: 0; padding: 20px; background-image: linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px); background-size: 20px 20px; }
+        h1, h2, h3 { text-align: center; border-bottom: 2px solid var(--ink); border-radius: 255px 15px 225px 15px/15px 225px 15px 255px; padding-bottom: 5px; margin-bottom: 20px; }
+        .box { border: 2px solid var(--ink); border-radius: 255px 15px 225px 15px/15px 225px 15px 255px; padding: 15px; margin-bottom: 20px; background: #fff; box-shadow: 3px 3px 0px rgba(0,0,0,0.1); }
+        button { font-family: 'Yomogi', cursive; font-size: 1.1rem; color: var(--ink); background: transparent; border: 2px solid var(--ink); border-radius: 15px 225px 15px 255px/255px 15px 225px 15px; padding: 10px 20px; margin: 5px; cursor: pointer; font-weight: bold; }
+        button:active { background: var(--ink); color: var(--paper); }
+        input[type="password"], input[type="text"] { font-family: 'Yomogi', cursive; font-size: 1.2rem; border: none; border-bottom: 2px dashed var(--ink); background: transparent; text-align: center; width: 90%; outline: none; margin-bottom: 10px;}
         .hidden { display: none !important; }
         .status-row { display: flex; justify-content: space-between; border-bottom: 1px dotted #ccc; margin-bottom: 5px;}
         .loading { text-align: center; font-weight: bold; animation: blink 1s infinite; }
-        
         @keyframes blink { 50% { opacity: 0.3; } }
         #battle-log { height: 250px; overflow-y: auto; background: #eef; padding: 10px; font-size: 0.95rem; line-height: 1.5;}
     </style>
@@ -88,282 +26,213 @@
 
     <h1>モノモン・バトル</h1>
 
-    <!-- 画面1: ホーム -->
-    <div id="screen-home" class="box">
-        <h2 id="my-name">キャラ未召喚</h2>
-        <div id="my-stats">
-            <p>まだモノを撮影していません。</p>
+    <!-- 🔑 APIキー入力画面 -->
+    <div id="screen-setup" class="box">
+        <h2>初期設定</h2>
+        <p style="font-size: 0.9rem;">APIキーを入力してください。<br><small style="color: #d00;">※会社や学校のGoogleアカウントではアクセス拒否(PERMISSION_DENIED)になる場合があります。個人の @gmail.com での取得をおすすめします。</small></p>
+        <div style="text-align: center;">
+            <input type="password" id="input-api-key" placeholder="APIキーをペースト">
+            <br>
+            <button onclick="saveApiKey()">冒険を始める</button>
         </div>
+    </div>
+
+    <!-- 🏠 ホーム画面 -->
+    <div id="screen-home" class="box hidden">
+        <h2 id="my-name">キャラ未召喚</h2>
+        <div id="my-stats"><p>まだモノを撮影していません。</p></div>
         <p id="my-desc"></p>
         
         <input type="file" id="camera-summon" accept="image/*" capture="environment" class="hidden">
         <input type="file" id="camera-feed" accept="image/*" capture="environment" class="hidden">
-
         <div style="text-align: center;">
             <button onclick="document.getElementById('camera-summon').click()">モノを撮って召喚</button>
             <button onclick="document.getElementById('camera-feed').click()">メシを撮って育成</button>
-            <br>
-            <button onclick="showScreen('screen-match')">バトルへ向かう</button>
+            <br><button onclick="showScreen('screen-match')">バトルへ向かう</button>
+            <br><br><button onclick="clearApiKey()" style="font-size: 0.8rem; color: #888; border-color: #888;">設定リセット</button>
         </div>
     </div>
 
-    <!-- 画面2: マッチング -->
+    <!-- ⚔️ マッチング画面 -->
     <div id="screen-match" class="box hidden">
         <h2>通信対戦</h2>
         <div style="text-align: center;">
-            <button onclick="hostGame()">部屋を作る（コード発行）</button>
-            <br><br>
+            <button onclick="hostGame()">部屋を作る</button>
             <p>または</p>
-            <input type="text" id="join-code" placeholder="コードを入力" maxlength="4">
+            <input type="text" id="join-code" placeholder="コード" maxlength="4" style="width:100px;">
             <button onclick="joinGame()">部屋に入る</button>
-            <br><br>
-            <button onclick="showScreen('screen-home')">戻る</button>
+            <br><br><button onclick="showScreen('screen-home')">戻る</button>
         </div>
-        <h3 id="room-display" class="hidden">部屋コード: <span id="current-code"></span><br><small>対戦相手を待っています...</small></h3>
+        <h3 id="room-display" class="hidden">部屋コード: <span id="current-code"></span><br><small>対戦相手を待機中...</small></h3>
     </div>
 
-    <!-- 画面3: バトル -->
+    <!-- 💥 バトル画面 -->
     <div id="screen-battle" class="box hidden">
         <h2>バトル開始</h2>
         <div id="battle-log">対戦相手を待機中...</div>
-        <br>
-        <div style="text-align: center;">
-            <button onclick="showScreen('screen-home')">帰還する</button>
-        </div>
+        <div style="text-align: center;"><button onclick="showScreen('screen-home')">帰還する</button></div>
     </div>
 
     <div id="loading" class="box hidden loading">AIが解析中...</div>
 
-    <!-- システム -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // ==========================================
-        // Gemini APIキーの設定
-        const GEMINI_API_KEY = "AQ.Ab8RN6JhTXChMGe10sH0mGF93YmxxthV9T6H2_15b1Cp0cSdrg"; 
-        
-        // ※ここのFirebaseの設定はご自身のものに必ず書き換えてください！
-       // あなたの専用設定に書き換えました
         const firebaseConfig = {
             apiKey: "AIzaSyD3N-JEBeHx88eAfmlora5I2FCpMe9EHM",
             authDomain: "monomon-4d55d.firebaseapp.com",
             projectId: "monomon-4d55d",
-            storageBucket: "monomon-4d55d.firebasestorage.app",
-            messagingSenderId: "522706153463",
-            appId: "1:522706153463:web:f6c5e914b82b5101bcc8f2"
+            databaseURL: "https://monomon-4d55d-default-rtdb.firebaseio.com"
         };
-        // ==========================================
-
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
         let myData = JSON.parse(localStorage.getItem("monomon_data")) || null;
-        let isHost = false;
-        let myRoomCode = "";
+        let myApiKey = localStorage.getItem("monomon_apikey") || "";
 
         window.showScreen = (screenId) => {
-            document.querySelectorAll('.box').forEach(el => {
-                if(el.id !== 'loading') el.classList.add('hidden');
-            });
+            document.querySelectorAll('.box').forEach(el => el.id !== 'loading' && el.classList.add('hidden'));
             document.getElementById(screenId).classList.remove('hidden');
             if (screenId === 'screen-home') updateHomeUI();
+        };
+
+        if (myApiKey) { showScreen('screen-home'); } else { showScreen('screen-setup'); }
+
+        window.saveApiKey = () => {
+            const val = document.getElementById('input-api-key').value.replace(/\s+/g, '');
+            if (!val) return alert("キーを入力してください");
+            myApiKey = val;
+            localStorage.setItem("monomon_apikey", myApiKey);
+            showScreen('screen-home');
+        };
+
+        window.clearApiKey = () => {
+            if(confirm("APIキーやデータを消去してリセットしますか？")) {
+                localStorage.removeItem("monomon_apikey");
+                localStorage.removeItem("monomon_data");
+                location.reload();
+            }
         };
 
         function updateHomeUI() {
             if (myData) {
                 document.getElementById('my-name').innerText = myData.name;
-                document.getElementById('my-stats').innerHTML = `
-                    <div class="status-row"><span>体力 (HP)</span><span>${myData.hp}</span></div>
-                    <div class="status-row"><span>攻撃 (ATK)</span><span>${myData.atk}</span></div>
-                    <div class="status-row"><span>防御 (DEF)</span><span>${myData.def}</span></div>
-                `;
-                document.getElementById('my-desc').innerText = "説明: " + myData.desc;
+                document.getElementById('my-stats').innerHTML = `<div class="status-row"><span>HP</span><span>${myData.hp}</span></div><div class="status-row"><span>ATK</span><span>${myData.atk}</span></div><div class="status-row"><span>DEF</span><span>${myData.def}</span></div>`;
+                document.getElementById('my-desc').innerText = myData.desc;
             }
         }
 
-        // 画像をBase64に変換し、MIMEタイプも取得
-        function fileToBase64(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = () => {
-                    const result = reader.result;
-                    const mimeType = result.split(';')[0].split(':')[1];
-                    const base64Data = result.split(',')[1];
-                    resolve({ mimeType, base64Data });
-                };
-                reader.onerror = error => reject(error);
-            });
-        }
-
-        // ====== Gemini API (画像+テキスト用) 呼び出し ======
-        async function callGeminiVisionAPI(imageObj, prompt) {
+        // ★最新の「gemini-3.5-flash」を呼び出します
+        async function callGemini(parts) {
             document.getElementById('loading').classList.remove('hidden');
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${myApiKey}`;
             
             try {
-                const response = await fetch(url, {
+                const res = await fetch(url, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        contents: [{
-                            parts: [
-                                { text: prompt },
-                                { inline_data: { mime_type: imageObj.mimeType, data: imageObj.base64Data } }
-                            ]
-                        }],
-                        // JSON形式での出力を強制
-                        generationConfig: { responseMimeType: "application/json" }
-                    })
+                    body: JSON.stringify({ contents: [{ parts: parts }] })
                 });
-                
-                const data = await response.json();
+                const data = await res.json();
                 document.getElementById('loading').classList.add('hidden');
                 
-                if(data.error) {
-                    alert("APIエラー: " + data.error.message);
+                if (data.error) {
+                    if (data.error.status === "PERMISSION_DENIED") {
+                        alert("【アクセス拒否エラー】\n会社や学校のGoogleアカウントをお使いの場合、制限に引っかかっている可能性があります。個人の@gmail.comでAPIキーを取り直してみてください。");
+                        clearApiKey();
+                    } else if (data.error.message.includes("API key not valid")) {
+                        alert("APIキーが無効です。設定をリセットしてください。");
+                        clearApiKey();
+                    } else {
+                        alert("AIエラー: " + data.error.message);
+                    }
                     return null;
                 }
-                
-                const responseText = data.candidates[0].content.parts[0].text;
-                return JSON.parse(responseText);
-            } catch (error) {
-                alert("AIとの通信に失敗しました。");
-                console.error(error);
+                return data.candidates[0].content.parts[0].text;
+            } catch (e) {
                 document.getElementById('loading').classList.add('hidden');
+                alert("通信失敗: " + e.message);
+                return null;
             }
         }
 
-        // ====== 1. 召喚 ======
+        function extractJSON(text) {
+            try { return JSON.parse(text.match(/\{[\s\S]*\}/)[0]); } catch (e) { return null; }
+        }
+
+        // カメラ（召喚）
         document.getElementById('camera-summon').addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if(!file) return;
-            const imageObj = await fileToBase64(file);
-            
-            const prompt = `あなたは天才的な中二病ゲームデザイナーです。
-            画像に写っている「日常のモノ」をRPGのモンスターに見立ててステータスを作ってください。
-            合計ステータスは必ず200になるように調整してください。
-            
-            【重要ルール】
-            ・前置き、挨拶、補足説明は一切出力しないでください。
-            ・以下のJSON形式のみを純粋に出力してください。
-            {"name": "超絶カッコいい名前", "hp": 50~100, "atk": 10~80, "def": 10~80, "desc": "くだらない設定文"}`;
-
-            const result = await callGeminiVisionAPI(imageObj, prompt);
-            if(result) {
-                myData = result;
-                localStorage.setItem("monomon_data", JSON.stringify(myData));
-                alert(`${myData.name} が召喚されました！`);
-                updateHomeUI();
-            }
+            const file = e.target.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = async () => {
+                const base64 = reader.result.split(',')[1];
+                const text = await callGemini([
+                    { text: '日常のモノの画像をRPGキャラにしたステータスを作成せよ。必ず以下のJSON形式のみを出力すること。 {"name":"名前","hp":100,"atk":50,"def":50,"desc":"説明"}' },
+                    { inlineData: { mimeType: file.type, data: base64 } }
+                ]);
+                if (text) {
+                    const result = extractJSON(text);
+                    if (result) { 
+                        myData = result; localStorage.setItem("monomon_data", JSON.stringify(myData)); updateHomeUI(); 
+                    } else { alert("解析に失敗しました。"); }
+                }
+                e.target.value = '';
+            };
         });
 
-        // ====== 2. 育成 ======
+        // カメラ（育成）
         document.getElementById('camera-feed').addEventListener('change', async (e) => {
-            if(!myData) return alert("先にキャラを召喚してください");
-            const file = e.target.files[0];
-            if(!file) return;
-            const imageObj = await fileToBase64(file);
-
-            const prompt = `あなたはモンスターの栄養士です。
-            画像に写っている「食べ物や飲み物」を解析し、それを食べたモンスターの成長値を決定してください。
-            カロリーが高いものは攻撃力、健康的なものは体力や防御が上がる傾向にしてください。
-            
-            【重要ルール】
-            ・前置き、挨拶、補足説明は一切出力しないでください。
-            ・以下のJSON形式のみを純粋に出力してください。
-            {"hp_up": 0~20, "atk_up": 0~10, "def_up": 0~10, "comment": "成長の理由（シュールな一言）"}`;
-
-            const result = await callGeminiVisionAPI(imageObj, prompt);
-            if(result) {
-                myData.hp += result.hp_up;
-                myData.atk += result.atk_up;
-                myData.def += result.def_up;
-                localStorage.setItem("monomon_data", JSON.stringify(myData));
-                alert(`${result.comment}\nHP +${result.hp_up}, ATK +${result.atk_up}, DEF +${result.def_up}`);
-                updateHomeUI();
-            }
+            if (!myData) return alert("召喚が先です");
+            const file = e.target.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = async () => {
+                const base64 = reader.result.split(',')[1];
+                const text = await callGemini([
+                    { text: '食べ物の画像の成長値を判定せよ。必ず以下のJSON形式のみを出力すること。 {"hp_up":10,"atk_up":5,"def_up":5,"comment":"一言"}' },
+                    { inlineData: { mimeType: file.type, data: base64 } }
+                ]);
+                if (text) {
+                    const result = extractJSON(text);
+                    if (result) { 
+                        myData.hp += result.hp_up; myData.atk += result.atk_up; myData.def += result.def_up; 
+                        localStorage.setItem("monomon_data", JSON.stringify(myData)); updateHomeUI(); alert(result.comment); 
+                    }
+                }
+                e.target.value = '';
+            };
         });
 
-        // ====== 3. オンラインバトル ======
+        // 部屋作成
         window.hostGame = () => {
-            if(!myData) return alert("キャラがいません");
-            myRoomCode = Math.floor(1000 + Math.random() * 9000).toString(); 
-            set(ref(db, 'rooms/' + myRoomCode), { host: myData });
+            if (!myData) return alert("キャラがいません");
+            const code = Math.floor(1000 + Math.random() * 9000).toString();
+            set(ref(db, 'rooms/' + code), { host: myData });
             document.getElementById('room-display').classList.remove('hidden');
-            document.getElementById('current-code').innerText = myRoomCode;
-            isHost = true;
-
-            onValue(ref(db, 'rooms/' + myRoomCode + '/guest'), async (snapshot) => {
-                const guestData = snapshot.val();
-                if (guestData && !document.getElementById('battle-log').innerText.includes('開戦')) {
-                    window.showScreen('screen-battle');
-                    document.getElementById('battle-log').innerHTML = "相手が入室しました。AIがバトルを生成中...<br>";
-                    generateBattleLog(myData, guestData);
+            document.getElementById('current-code').innerText = code;
+            onValue(ref(db, 'rooms/' + code + '/guest'), async (snap) => {
+                if (snap.val()) {
+                    showScreen('screen-battle');
+                    const text = await callGemini([{ text: `バトルの実況をせよ。最後に必ず 勝者：〇〇 と書け。P1:${JSON.stringify(myData)}, P2:${JSON.stringify(snap.val())}` }]);
+                    if (text) {
+                        update(ref(db, 'rooms/' + code), { result: text });
+                        document.getElementById('battle-log').innerHTML = text.replace(/\n/g, "<br>");
+                    }
                 }
             });
         };
 
+        // 部屋参加
         window.joinGame = () => {
-            if(!myData) return alert("キャラがいません");
-            myRoomCode = document.getElementById('join-code').value;
-            if(myRoomCode.length !== 4) return alert("4桁のコードを入力してください");
-
-            update(ref(db, 'rooms/' + myRoomCode), { guest: myData });
-            isHost = false;
-            window.showScreen('screen-battle');
-            document.getElementById('battle-log').innerText = "対戦相手のAI処理を待っています...";
-
-            onValue(ref(db, 'rooms/' + myRoomCode + '/result'), (snapshot) => {
-                const resultText = snapshot.val();
-                if (resultText) {
-                    document.getElementById('battle-log').innerHTML = resultText.replace(/\n/g, "<br>");
-                }
+            const code = document.getElementById('join-code').value;
+            update(ref(db, 'rooms/' + code), { guest: myData });
+            showScreen('screen-battle');
+            onValue(ref(db, 'rooms/' + code + '/result'), (snap) => {
+                if (snap.val()) document.getElementById('battle-log').innerHTML = snap.val().replace(/\n/g, "<br>");
             });
         };
-
-        // ====== Gemini API (テキストのみ・バトル実況用) ======
-        async function generateBattleLog(p1, p2) {
-            const prompt = `あなたは熱血格闘ゲームの実況アナウンサーです。
-            以下の2体のモンスターのステータスを元に、どちらが勝つかを論理的（かつバカバカしい理由）で判定し、激しいバトルの実況テキストを作成してください。
-            
-            プレイヤー1: ${JSON.stringify(p1)}
-            プレイヤー2: ${JSON.stringify(p2)}
-            
-            【重要ルール】
-            ・「わかりました」「実況を開始します」などの前置き、挨拶、後書きは一切不要です。いきなり実況から始めてください。
-            ・3ターン分の攻防を熱く描写してください。
-            ・最後に必ず「勝者：〇〇」と記載して終了してください。`;
-
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-
-            try {
-                const response = await fetch(url, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: prompt }] }]
-                    })
-                });
-                
-                const data = await response.json();
-                
-                if(data.error) {
-                    alert("AI実況の生成に失敗しました: " + data.error.message);
-                    return;
-                }
-
-                const logText = data.candidates[0].content.parts[0].text;
-                update(ref(db, 'rooms/' + myRoomCode), { result: logText });
-                document.getElementById('battle-log').innerHTML = logText.replace(/\n/g, "<br>");
-            } catch (error) {
-                console.error(error);
-                alert("バトル実況の生成中にエラーが発生しました。");
-            }
-        }
-
-        updateHomeUI();
     </script>
 </body>
 </html>
