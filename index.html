@@ -3,236 +3,226 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>モノモン・バトル</title>
+    <title>モノモン召喚伝：真・三十大決戦</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Yomogi&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
-        :root { --ink: #2c2c2c; --paper: #f4f4f0; }
-        body { font-family: 'Yomogi', cursive; background-color: var(--paper); color: var(--ink); margin: 0; padding: 20px; background-image: linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px); background-size: 20px 20px; }
-        h1, h2, h3 { text-align: center; border-bottom: 2px solid var(--ink); border-radius: 255px 15px 225px 15px/15px 225px 15px 255px; padding-bottom: 5px; margin-bottom: 20px; }
-        .box { border: 2px solid var(--ink); border-radius: 255px 15px 225px 15px/15px 225px 15px 255px; padding: 15px; margin-bottom: 20px; background: #fff; box-shadow: 3px 3px 0px rgba(0,0,0,0.1); }
-        button { font-family: 'Yomogi', cursive; font-size: 1.1rem; color: var(--ink); background: transparent; border: 2px solid var(--ink); border-radius: 15px 225px 15px 255px/255px 15px 225px 15px; padding: 10px 20px; margin: 5px; cursor: pointer; font-weight: bold; }
-        button:active { background: var(--ink); color: var(--paper); }
-        input[type="password"], input[type="text"] { font-family: 'Yomogi', cursive; font-size: 1.2rem; border: none; border-bottom: 2px dashed var(--ink); background: transparent; text-align: center; width: 90%; outline: none; margin-bottom: 10px;}
+        :root { --bg: #000000; --frame: #ffffff; --text: #ffffff; }
+        body { font-family: 'DotGothic16', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 10px; overflow-x: hidden; }
+        h1 { text-align: center; font-size: 1.5rem; border: 4px double var(--frame); padding: 5px; margin-bottom: 15px; background: #0000aa; }
+        .dq-window { border: 4px solid var(--frame); border-radius: 8px; padding: 15px; background: var(--bg); margin-bottom: 15px; box-shadow: inset 0 0 0 2px #000; }
+        #monster-canvas { width: 192px; height: 192px; image-rendering: pixelated; display: block; margin: 0 auto 15px; background: #111; border: 2px solid #333; }
+        .status-area { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 1.2rem; border-bottom: 2px solid var(--frame); padding-bottom: 5px; margin-bottom: 10px; }
+        button { font-family: 'DotGothic16', sans-serif; font-size: 1.1rem; color: var(--text); background: var(--bg); border: 2px solid var(--frame); padding: 10px; cursor: pointer; width: 100%; margin: 5px 0; text-align: left; }
+        button:hover { background: #222; }
+        input { font-family: 'DotGothic16', sans-serif; font-size: 1.4rem; color: var(--text); background: var(--bg); border: none; border-bottom: 2px solid var(--frame); width: 100%; outline: none; text-align: center; margin: 10px 0; }
+        #battle-log { height: 160px; overflow-y: auto; font-size: 1rem; line-height: 1.6; color: #fff; }
         .hidden { display: none !important; }
-        .status-row { display: flex; justify-content: space-between; border-bottom: 1px dotted #ccc; margin-bottom: 5px;}
-        .loading { text-align: center; font-weight: bold; animation: blink 1s infinite; }
-        @keyframes blink { 50% { opacity: 0.3; } }
-        #battle-log { height: 250px; overflow-y: auto; background: #eef; padding: 10px; font-size: 0.95rem; line-height: 1.5;}
+        .loading { text-align: center; font-size: 1.5rem; color: #ffff00; }
     </style>
 </head>
 <body>
 
-    <h1>モノモン・バトル</h1>
+    <h1>モノモン召喚伝</h1>
 
-    <!-- 🔑 APIキー入力画面 -->
-    <div id="screen-setup" class="box">
-        <h2>初期設定</h2>
-        <p style="font-size: 0.9rem;">APIキーを入力してください。<br><small style="color: #d00;">※会社や学校のGoogleアカウントではアクセス拒否(PERMISSION_DENIED)になる場合があります。個人の @gmail.com での取得をおすすめします。</small></p>
-        <div style="text-align: center;">
-            <input type="password" id="input-api-key" placeholder="APIキーをペースト">
-            <br>
-            <button onclick="saveApiKey()">冒険を始める</button>
+    <div id="screen-home" class="dq-window">
+        <canvas id="monster-canvas" width="16" height="16"></canvas>
+        <div id="my-name" style="font-size: 1.6rem; text-align:center; margin-bottom:10px; color:#ffff00;">モノを召喚せよ！</div>
+        
+        <div id="stats-view" class="hidden">
+            <div class="status-area">
+                <div>ＨＰ: <span id="hp-val"></span></div>
+                <div>攻撃: <span id="atk-val"></span></div>
+            </div>
+            <div id="my-desc" style="font-size: 1rem; margin-bottom: 15px; color:#aaa;"></div>
         </div>
-    </div>
-
-    <!-- 🏠 ホーム画面 -->
-    <div id="screen-home" class="box hidden">
-        <h2 id="my-name">キャラ未召喚</h2>
-        <div id="my-stats"><p>まだモノを撮影していません。</p></div>
-        <p id="my-desc"></p>
         
         <input type="file" id="camera-summon" accept="image/*" capture="environment" class="hidden">
-        <input type="file" id="camera-feed" accept="image/*" capture="environment" class="hidden">
-        <div style="text-align: center;">
-            <button onclick="document.getElementById('camera-summon').click()">モノを撮って召喚</button>
-            <button onclick="document.getElementById('camera-feed').click()">メシを撮って育成</button>
-            <br><button onclick="showScreen('screen-match')">バトルへ向かう</button>
-            <br><br><button onclick="clearApiKey()" style="font-size: 0.8rem; color: #888; border-color: #888;">設定リセット</button>
-        </div>
+        <button onclick="document.getElementById('camera-summon').click()">▶ モノを撮って召喚する</button>
+        <button id="btn-to-match" class="hidden" onclick="showScreen('screen-match')">▶ 旅人と戦う（通信）</button>
     </div>
 
-    <!-- ⚔️ マッチング画面 -->
-    <div id="screen-match" class="box hidden">
-        <h2>通信対戦</h2>
-        <div style="text-align: center;">
-            <button onclick="hostGame()">部屋を作る</button>
-            <p>または</p>
-            <input type="text" id="join-code" placeholder="コード" maxlength="4" style="width:100px;">
-            <button onclick="joinGame()">部屋に入る</button>
-            <br><br><button onclick="showScreen('screen-home')">戻る</button>
-        </div>
-        <h3 id="room-display" class="hidden">部屋コード: <span id="current-code"></span><br><small>対戦相手を待機中...</small></h3>
+    <div id="screen-match" class="dq-window hidden">
+        <div style="font-size: 1.3rem; margin-bottom:10px;">▼ 対戦メニュー</div>
+        <button onclick="hostGame()">▶ 部屋（合言葉）を作る</button>
+        <input type="text" id="join-code" placeholder="合言葉（4ケタ）">
+        <button onclick="joinGame()">▶ 部屋に入る</button>
+        <button onclick="showScreen('screen-home')">▶ もどる</button>
+        <h3 id="room-display" class="hidden" style="text-align:center;">合言葉：<span id="current-code" style="color:#ffff00; font-size: 2.5rem;"></span></h3>
     </div>
 
-    <!-- 💥 バトル画面 -->
-    <div id="screen-battle" class="box hidden">
-        <h2>バトル開始</h2>
-        <div id="battle-log">対戦相手を待機中...</div>
-        <div style="text-align: center;"><button onclick="showScreen('screen-home')">帰還する</button></div>
+    <div id="screen-battle" class="dq-window hidden">
+        <div id="battle-log"></div>
+        <button onclick="location.reload()" style="margin-top:10px;">▶ 城へもどる</button>
     </div>
 
-    <div id="loading" class="box hidden loading">AIが解析中...</div>
+    <div id="loading" class="dq-window hidden loading">召喚儀式中...</div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyD3N-JEBeHx88eAfmlora5I2FCpMe9EHM",
-            authDomain: "monomon-4d55d.firebaseapp.com",
-            projectId: "monomon-4d55d",
-            databaseURL: "https://monomon-4d55d-default-rtdb.firebaseio.com"
-        };
+        const firebaseConfig = { apiKey: "AIzaSyD3N-JEBeHx88eAfmlora5I2FCpMe9EHM", authDomain: "monomon-4d55d.firebaseapp.com", projectId: "monomon-4d55d", databaseURL: "https://monomon-4d55d-default-rtdb.firebaseio.com" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
         let myData = JSON.parse(localStorage.getItem("monomon_data")) || null;
-        let myApiKey = localStorage.getItem("monomon_apikey") || "";
+
+        // 🎨 魂の10系統 × 3バリエーション = 30体のドット絵定義
+        // 0:なし, 1:メイン色, 2:黒, 3:白, 4:サブ
+        const SHAPES = {
+            slime:  "0000002222000000000021111200000000211111120000002111111112000021111111111200002111111111120002111111111111200211111111111112021321111112311202111111111111120211111222211112002111211112112000021111111111200000021111112000000002222220000",
+            knight: "00000222220000000002111111200000002111111112000002111111111200000211311131120000211111111112000022112222211220002112444442112002111244444211120211122222221112021111222221111200211111111111200002112002112000002112002112000002222002222000",
+            dragon: "000000000220000000000000211200000022220021112000021112021111200021111221111120002111111112222000021111111211120000222222221112000000211111111200000021111111120000002111144412000000022222222000000000022002200000000002200220000",
+            wizard: "0000000220000000000000244200000000002444420000000002444444200000002444444442000002222222222220000211111111112000021311111311200002111111111120000021114411120000002114411200000000211112000000000022220000000000022022000000000022022000000",
+            golem:  "00022222222220000021111111111200002112211221120000211111111112000021111221111200002221111112220002222111111222200211211111121120211211111121120211222222221120211111111111120211111111111120021112222111200002112002112000002222002222000",
+            box:    "0000000000000000002222222222200002444444444442000244224442244200024444444444420002222222222222000234343434343200024444444444420002444444444442000244444444444200024444444444420000222222222220000",
+            devil:  "0022000000002200021120000002112002112000000211200211222222221120002111111111120000213111113120000021112211120000002111111120000002211111122000022111111112200021111111111120002112111111211200021121111112112000022200002220000000000000000",
+            bird:   "000000002200000000000002112000000000002131200000022200211120000021120211112000002111221111222000021111111111120000021111111122000000021111111200000002111111120000002111111112000000211111111200000002222222200000000220002200000",
+            ghost:  "0000022222000000000211111112000000211111111120000211111111112000021321111231200002111111111120000211122221112000021111111111200002111111111120000211111111112000021111111111200002111111111120000021212121212000000000000000000",
+            robot:  "0000022222000000000244114420000000244114420000000021111112000000021111112000000023333332000000021111112000000221111112200002111111111200002111111111200002111111111200002111111111200002112222112000021120021120000022200222000"
+        };
+
+        const MONSTERS = [
+            { name: "スラ", shape: "slime", col: "#44ccff", desc: "プルプルした　青いスライム。" },
+            { name: "てっぺい", shape: "knight", col: "#aaaaaa", desc: "忠義に厚い　まじめな兵士。" },
+            { name: "グリーンドラ", shape: "dragon", col: "#44cc44", desc: "森に住む　緑色の竜。" },
+            { name: "まどうし", shape: "wizard", col: "#8844ff", desc: "呪文を　あやつる魔導の使い。" },
+            { name: "ゴーレム", shape: "golem", col: "#886644", desc: "土の塊が　動き出した巨人。" },
+            { name: "ミミック", shape: "box", col: "#888888", desc: "宝箱に　化けた人食い箱。" },
+            { name: "ゴースト", shape: "ghost", col: "#ffffff", desc: "さまよえる　白い幽霊。" },
+            { name: "ヘルバット", shape: "bird", col: "#ff44ff", desc: "闇を飛ぶ　美しい鳥。" },
+            { name: "ベビーサタン", shape: "devil", col: "#cc4444", desc: "いたずら好きな　小悪魔。" },
+            { name: "キラーロボ", shape: "robot", col: "#7788aa", desc: "冷酷な　殺戮マシン。" }
+            // この10種をベースに、色違いの「大」「影」「聖」などの30種を生成
+        ];
 
         window.showScreen = (screenId) => {
-            document.querySelectorAll('.box').forEach(el => el.id !== 'loading' && el.classList.add('hidden'));
+            document.querySelectorAll('.dq-window').forEach(el => el.id !== 'loading' && el.classList.add('hidden'));
             document.getElementById(screenId).classList.remove('hidden');
-            if (screenId === 'screen-home') updateHomeUI();
+            if(myData) updateHomeUI();
         };
 
-        if (myApiKey) { showScreen('screen-home'); } else { showScreen('screen-setup'); }
-
-        window.saveApiKey = () => {
-            const val = document.getElementById('input-api-key').value.replace(/\s+/g, '');
-            if (!val) return alert("キーを入力してください");
-            myApiKey = val;
-            localStorage.setItem("monomon_apikey", myApiKey);
-            showScreen('screen-home');
-        };
-
-        window.clearApiKey = () => {
-            if(confirm("APIキーやデータを消去してリセットしますか？")) {
-                localStorage.removeItem("monomon_apikey");
-                localStorage.removeItem("monomon_data");
-                location.reload();
+        function drawPixelArt(monster) {
+            const canvas = document.getElementById('monster-canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0,0,16,16);
+            const data = SHAPES[monster.shape] || SHAPES.slime;
+            for(let i=0; i<256; i++) {
+                const x = i % 16, y = Math.floor(i / 16);
+                const p = data[i];
+                if(p === "0") continue;
+                ctx.fillStyle = (p === "1") ? monster.col : (p === "2") ? "#000" : (p === "3") ? "#fff" : "#ffeb3b";
+                ctx.fillRect(x, y, 1, 1);
             }
-        };
+        }
 
         function updateHomeUI() {
             if (myData) {
                 document.getElementById('my-name').innerText = myData.name;
-                document.getElementById('my-stats').innerHTML = `<div class="status-row"><span>HP</span><span>${myData.hp}</span></div><div class="status-row"><span>ATK</span><span>${myData.atk}</span></div><div class="status-row"><span>DEF</span><span>${myData.def}</span></div>`;
+                document.getElementById('stats-view').classList.remove('hidden');
+                document.getElementById('hp-val').innerText = myData.hp;
+                document.getElementById('atk-val').innerText = myData.atk;
                 document.getElementById('my-desc').innerText = myData.desc;
+                document.getElementById('btn-to-match').classList.remove('hidden');
+                drawPixelArt(myData);
             }
         }
 
-        // ★最新の「gemini-3.5-flash」を呼び出します
-        async function callGemini(parts) {
-            document.getElementById('loading').classList.remove('hidden');
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${myApiKey}`;
-            
-            try {
-                const res = await fetch(url, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ contents: [{ parts: parts }] })
-                });
-                const data = await res.json();
-                document.getElementById('loading').classList.add('hidden');
-                
-                if (data.error) {
-                    if (data.error.status === "PERMISSION_DENIED") {
-                        alert("【アクセス拒否エラー】\n会社や学校のGoogleアカウントをお使いの場合、制限に引っかかっている可能性があります。個人の@gmail.comでAPIキーを取り直してみてください。");
-                        clearApiKey();
-                    } else if (data.error.message.includes("API key not valid")) {
-                        alert("APIキーが無効です。設定をリセットしてください。");
-                        clearApiKey();
-                    } else {
-                        alert("AIエラー: " + data.error.message);
+        async function analyzeSummon(file) {
+            return new Promise(resolve => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = 10; canvas.height = 10;
+                    ctx.drawImage(img, 0, 0, 10, 10);
+                    const d = ctx.getImageData(0, 0, 10, 10).data;
+                    let r=0, g=0, b=0;
+                    for(let i=0; i<d.length; i+=4){ r+=d[i]; g+=d[i+1]; b+=d[i+2]; }
+                    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+                    let h = (max === min) ? 0 : (max === r) ? 60*(g-b)/(max-min) : (max === g) ? 60*(b-r)/(max-min)+120 : 60*(r-g)/(max-min)+240;
+                    if(h < 0) h += 360;
+
+                    // 0-360度を30分割（3系統 × 10形状）
+                    const idx = Math.floor(h / 12) % 30;
+                    const baseIdx = idx % 10;
+                    let base = MONSTERS[baseIdx];
+                    
+                    let finalName = base.name;
+                    let finalCol = base.col;
+                    let finalDesc = base.desc;
+
+                    // バリエーション調整（10体ごとにランクアップ）
+                    if(idx >= 10 && idx < 20) {
+                        finalName = "影の" + finalName;
+                        finalCol = "#444444";
+                        finalDesc = "闇から　呼び出された　不気味な影。";
+                    } else if(idx >= 20) {
+                        finalName = "大" + finalName;
+                        finalCol = "#ffff44";
+                        finalDesc = "光り輝く　最強クラスの　個体。";
                     }
-                    return null;
-                }
-                return data.candidates[0].content.parts[0].text;
-            } catch (e) {
-                document.getElementById('loading').classList.add('hidden');
-                alert("通信失敗: " + e.message);
-                return null;
-            }
+
+                    resolve({ 
+                        name: finalName, shape: base.shape, col: finalCol, 
+                        desc: finalDesc, hp: 160 + Math.floor(g / 2), atk: 45 + Math.floor(r / 4) 
+                    });
+                };
+                img.src = URL.createObjectURL(file);
+            });
         }
 
-        function extractJSON(text) {
-            try { return JSON.parse(text.match(/\{[\s\S]*\}/)[0]); } catch (e) { return null; }
-        }
-
-        // カメラ（召喚）
         document.getElementById('camera-summon').addEventListener('change', async (e) => {
             const file = e.target.files[0]; if (!file) return;
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = async () => {
-                const base64 = reader.result.split(',')[1];
-                const text = await callGemini([
-                    { text: '日常のモノの画像をRPGキャラにしたステータスを作成せよ。必ず以下のJSON形式のみを出力すること。 {"name":"名前","hp":100,"atk":50,"def":50,"desc":"説明"}' },
-                    { inlineData: { mimeType: file.type, data: base64 } }
-                ]);
-                if (text) {
-                    const result = extractJSON(text);
-                    if (result) { 
-                        myData = result; localStorage.setItem("monomon_data", JSON.stringify(myData)); updateHomeUI(); 
-                    } else { alert("解析に失敗しました。"); }
-                }
-                e.target.value = '';
-            };
+            document.getElementById('loading').classList.remove('hidden');
+            myData = await analyzeSummon(file);
+            localStorage.setItem("monomon_data", JSON.stringify(myData));
+            setTimeout(() => { document.getElementById('loading').classList.add('hidden'); updateHomeUI(); }, 1000);
         });
 
-        // カメラ（育成）
-        document.getElementById('camera-feed').addEventListener('change', async (e) => {
-            if (!myData) return alert("召喚が先です");
-            const file = e.target.files[0]; if (!file) return;
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = async () => {
-                const base64 = reader.result.split(',')[1];
-                const text = await callGemini([
-                    { text: '食べ物の画像の成長値を判定せよ。必ず以下のJSON形式のみを出力すること。 {"hp_up":10,"atk_up":5,"def_up":5,"comment":"一言"}' },
-                    { inlineData: { mimeType: file.type, data: base64 } }
-                ]);
-                if (text) {
-                    const result = extractJSON(text);
-                    if (result) { 
-                        myData.hp += result.hp_up; myData.atk += result.atk_up; myData.def += result.def_up; 
-                        localStorage.setItem("monomon_data", JSON.stringify(myData)); updateHomeUI(); alert(result.comment); 
-                    }
-                }
-                e.target.value = '';
-            };
-        });
+        async function runBattle(p1, p2) {
+            const log = document.getElementById('battle-log');
+            log.innerHTML = `＊[${p1.name}]が　あらわれた！<br>`;
+            let h1 = p1.hp, h2 = p2.hp;
+            const add = (t) => { log.innerHTML += t + "<br>"; log.scrollTop = log.scrollHeight; };
 
-        // 部屋作成
+            for(let turn=1; turn<=20; turn++) {
+                await new Promise(r => setTimeout(r, 800));
+                let d1 = Math.floor(p1.atk * (0.9 + Math.random()*0.3));
+                h2 -= d1; add(`＊[${p1.name}]の　こうげき！<br>　[${p2.name}]に　${d1}のダメージ！`);
+                if(h2 <= 0) { add(`＊[${p2.name}]を　たおした！`); break; }
+                await new Promise(r => setTimeout(r, 800));
+                let d2 = Math.floor(p2.atk * (0.9 + Math.random()*0.3));
+                h1 -= d2; add(`＊[${p2.name}]の　こうげき！<br>　[${p1.name}]に　${d2}のダメージ！`);
+                if(h1 <= 0) { add(`＊[${p1.name}]は　ちからつきた…`); break; }
+            }
+            const win = h1 > h2 ? p1.name : p2.name;
+            add(`<br><strong style="color:#ffff00;">＊[${win}]の　しょうりだ！</strong>`);
+            return win;
+        }
+
         window.hostGame = () => {
-            if (!myData) return alert("キャラがいません");
+            if (!myData) return alert("召喚してください");
             const code = Math.floor(1000 + Math.random() * 9000).toString();
             set(ref(db, 'rooms/' + code), { host: myData });
             document.getElementById('room-display').classList.remove('hidden');
             document.getElementById('current-code').innerText = code;
             onValue(ref(db, 'rooms/' + code + '/guest'), async (snap) => {
-                if (snap.val()) {
-                    showScreen('screen-battle');
-                    const text = await callGemini([{ text: `バトルの実況をせよ。最後に必ず 勝者：〇〇 と書け。P1:${JSON.stringify(myData)}, P2:${JSON.stringify(snap.val())}` }]);
-                    if (text) {
-                        update(ref(db, 'rooms/' + code), { result: text });
-                        document.getElementById('battle-log').innerHTML = text.replace(/\n/g, "<br>");
-                    }
-                }
+                if (snap.val()) { showScreen('screen-battle'); const res = await runBattle(myData, snap.val()); update(ref(db, 'rooms/' + code), { result: res }); }
             });
         };
 
-        // 部屋参加
         window.joinGame = () => {
             const code = document.getElementById('join-code').value;
+            if(!code) return;
             update(ref(db, 'rooms/' + code), { guest: myData });
             showScreen('screen-battle');
-            onValue(ref(db, 'rooms/' + code + '/result'), (snap) => {
-                if (snap.val()) document.getElementById('battle-log').innerHTML = snap.val().replace(/\n/g, "<br>");
-            });
+            onValue(ref(db, 'rooms/' + code + '/host'), snap => { if(snap.val()) runBattle(snap.val(), myData); });
         };
+
+        if(myData) updateHomeUI();
     </script>
 </body>
 </html>
